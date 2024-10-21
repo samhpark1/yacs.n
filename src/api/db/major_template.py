@@ -13,55 +13,157 @@ class MajorTemplate:
         self.db_conn = db_conn
         self.cache = cache
 
+    def clear_cache(self):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            loop.create_task(self.cache.clear(namespace="API_CACHE"))
+        else:
+            asyncio.run(self.cache.clear("API_CACHE"))
+
     #Create
     def populate_from_JSON(self, json_data):
         conn = self.db_conn.get_connection()
+        
         with conn.cursor(cursor_factory=RealDictCursor) as transaction:
             try:
                 for entry in json_data:
                     try:
-                        self.add_template(entry['major'], entry['year'], entry['classes'])
+                        transaction.execute(
+                            """
+                            INSERT INTO professor (
+                                Major,
+                                Year,
+                                Classes
+                            )
+                            VALUES (
+                                %(major)s, %(year)s, %(classes)s
+                            )
+                            ON CONFLICT DO NOTHING;
+                            """,
+                            {
+                                "Major": entry['major'],
+                                "Year": entry['year'],
+                                "Classes": entry['classes']
+                            }
+                        )
                     except Exception as e:
-                        print("Exception: ", e)
+                        print("THIS IS THE EXCEPTION:", e)
                         conn.rollback()
                         return (False, e)
-            except Exception as ve:
-                return (False, f"Invalid JSON: {str(ve)}")
-        conn.commit()
-        self.clear_cache()
-        return (True, None)
+            except ValueError as ve:
+                return (False, f"Invalid JSON data: {str(ve)}")
+
+            conn.commit()
+
+            self.clear_cache()
+
+            return (True, None)
+
 
 
 
     def add_template(self, major, year, classes):
-        if year is not None and major is not None:
-            conn = self.db_conn.get_connection()
-            new_template = MajorTemplate(major=major, year=year,classes=classes)
-            conn.add(new_template)
-            conn.commit()
-        return False, "Year and Major cannot be Null."
+        if year is not None and major is not None and classes is not None:
+            return self.db_conn.execute(
+                """
+                INSERT INTO professor (
+                    Major,
+                    Year,
+                    Classes
+                )
+                VALUES (
+                    %(major)s, %(year)s, %(classes)s
+                )
+                ON CONFLICT DO NOTHING;
+                """,
+                {
+                    "Major": major,
+                    "Year": year,
+                    "Classes": classes
+                }
+            )
+        return False, "Year and Major cannot be null"
 
     #Read
-    def get_by_year(self):
-        pass
+    def get_by_year(self, year):
+        if year is not None:
+            return self.db_conn.execute(
+                """
+                    SELECT *
+                    FROM major_templates
+                    WHERE year = %s
+                """,
+                (year, ),
+                True
+            )
+        return False, "Year cannot be null"
 
-    def get_by_major(self):
-        pass
+    def get_by_major(self, major):
+        if major is not None:
+            return self.db_conn.execute(
+                """
+                    SELECT *
+                    FROM major_templates
+                    WHERE major = %s
+                """,
+                (major,),
+                True
+            )
+        return False, "Major cannot be null"
 
-    def get_by_major_year(self):
-        pass
-
-
-    #Update
-    def update_template(self):
-        pass
+    def get_by_major_year(self, major, year):
+        if major is not None and year is not None:
+            return self.db_conn.execute(
+                """
+                    SELECT *
+                    FROM major_templates
+                    WHERE major = %(major)s AND year = %(year)s
+                """,
+                (major, year,),
+                True
+            )
+        return False, "Major and Year cannot be null"
 
     #Delete
-    def remove_by_year(self):
-        pass
+    def remove_by_year(self, year):
+        if year is not None:
+            return self.db_conn.execute(
+                """
+                    DELETE *
+                    FROM major_templates
+                    WHERE year = %s
+                """,
+                (year,),
+                True
+            )
+        return False, "Year cannot be null"
 
-    def remove_by_major(self):
-        pass
+    def remove_by_major(self, major):
+        if major is not None:
+            return self.db_conn.execute(
+                """
+                    DELETE *
+                    FROM major_templates
+                    WHERE year = %s
+                """,
+                (major,),
+                True
+            )
+        return False, "Major cannot be null"
 
-    def remove_by_major_year(self):
-        pass
+    def remove_by_major_year(self, major, year):
+        if major is not None and year is not None:
+            return self.db_conn.execute(
+                """
+                    DELETE *
+                    FROM major_templates
+                    WHERE major = %(major)s AND year = %(year)s
+                """,
+                (major, year,),
+                True
+            )
+        return False, "Major and Year cannot be null"

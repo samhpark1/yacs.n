@@ -1,0 +1,53 @@
+[
+    {
+      "year": 2022,
+      "major": "CENG",
+      "classes": {
+        "CENG1001": "Introduction to Engineering",
+        "CENG2002": "Fluid Mechanics",
+        "CENG3003": "Heat Transfer",
+        "CENG4004": "Process Design"
+      }
+    },
+    {
+      "year": 2023,
+      "major": "MATH",
+      "classes": {
+        "MATH1010": "Calculus I",
+        "MATH2020": "Linear Algebra",
+        "MATH3030": "Probability and Statistics",
+        "MATH4040": "Abstract Algebra"
+      }
+    },
+    {
+      "year": 2024,
+      "major": "PHYS",
+      "classes": {
+        "PHYS1100": "Classical Mechanics",
+        "PHYS2200": "Electromagnetism",
+        "PHYS3300": "Quantum Physics",
+        "PHYS4400": "Thermodynamics"
+      }
+    },
+    {
+      "year": 2025,
+      "major": "BIOL",
+      "classes": {
+        "BIOL1010": "Introduction to Biology",
+        "BIOL2020": "Genetics",
+        "BIOL3030": "Molecular Biology",
+        "BIOL4040": "Ecology"
+      }
+    },
+    {
+      "year": 2026,
+      "major": "CHEM",
+      "classes": {
+        "CHEM1100": "General Chemistry",
+        "CHEM2200": "Organic Chemistry",
+        "CHEM3300": "Physical Chemistry",
+        "CHEM4400": "Analytical Chemistry"
+      }
+    }
+  ]
+  

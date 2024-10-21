@@ -17,9 +17,11 @@ import db.semester_date_mapping as DateMapping
 import db.admin as AdminInfo
 import db.student_course_selection as CourseSelect
 import db.user as UserModel
+import db.major_template as MajorTemplate
 import controller.user as user_controller
 import controller.session as session_controller
 import controller.userevent as event_controller
+
 from io import StringIO
 from sqlalchemy.orm import Session
 import json
@@ -382,3 +384,34 @@ async def remove_professor(email:str):
     print(email)
     professor, error = professor_info.remove_professor(email)
     return professor if not error else Response(str(error), status_code=500)
+
+
+
+@app.post('/api/bulkMajorTemplateUpload')
+async def uploadTemplateJSON(
+        isPubliclyVisible: str = Form(...),
+        file: UploadFile = File(...)):  
+    if not file:
+        return Response("No file received", 400)
+    
+    if file.filename.find('.') == -1 or file.filename.rsplit('.', 1)[1].lower() != 'json':
+        return Response("File must have JSON extension", 400)
+    
+    contents = await file.read()
+    
+    try:
+        #convert string to python dict
+        json_data = json.loads(contents.decode('utf-8'))
+        # print(json_data)
+    except json.JSONDecodeError as e:
+        return Response(f"Invalid JSON data: {str(e)}", 400)
+
+    # Call populate_from_json method
+    isSuccess, error = MajorTemplate.populate_from_JSON(json_data)
+    if isSuccess:
+        print("SUCCESS")
+        return Response(status_code=200)
+    else:
+        print("NOT WORKING")
+        print(error)
+        return Response(error.__str__(), status_code=500)

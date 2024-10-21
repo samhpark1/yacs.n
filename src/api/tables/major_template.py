@@ -1,6 +1,6 @@
 from sqlalchemy import Column, PrimaryKeyConstraint
 
-from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR, JSONB
+from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR, JSON
 
 from .database import Base
 
@@ -10,7 +10,7 @@ class MajorTemplate(Base):
 
     major = Column(VARCHAR(length=4))
     year = Column(INTEGER)
-    template = Column(JSONB, nullable=False)
+    classes = Column(JSON, nullable=False)
     __table_args__ = (
         PrimaryKeyConstraint('major', 'year'),
     )
