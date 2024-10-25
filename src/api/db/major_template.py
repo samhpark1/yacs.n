@@ -34,10 +34,10 @@ class MajorTemplate:
                     try:
                         transaction.execute(
                             """
-                            INSERT INTO professor (
-                                Major,
-                                Year,
-                                Classes
+                            INSERT INTO major_template (
+                                major,
+                                year,
+                                classes
                             )
                             VALUES (
                                 %(major)s, %(year)s, %(classes)s
@@ -45,9 +45,9 @@ class MajorTemplate:
                             ON CONFLICT DO NOTHING;
                             """,
                             {
-                                "Major": entry['major'],
-                                "Year": entry['year'],
-                                "Classes": entry['classes']
+                                "major": entry['major'],
+                                "year": entry['year'],
+                                "classes": json.dumps(entry['classes'])
                             }
                         )
                     except Exception as e:
@@ -61,19 +61,24 @@ class MajorTemplate:
 
             self.clear_cache()
 
-            return (True, None)
+            return (True, "Added Successfully")
 
 
 
 
     def add_template(self, major, year, classes):
-        if year is not None and major is not None and classes is not None:
-            return self.db_conn.execute(
+        if year is None or major is None or classes is None:
+            return False, "Year, Major, and Classes cannot be null"
+    
+        # Try to execute the SQL query with enhanced error handling
+        try:
+            # Execute the insert statement
+            result = self.db_conn.execute(
                 """
-                INSERT INTO professor (
-                    Major,
-                    Year,
-                    Classes
+                INSERT INTO major_template (
+                    major,
+                    year,
+                    classes
                 )
                 VALUES (
                     %(major)s, %(year)s, %(classes)s
@@ -81,12 +86,17 @@ class MajorTemplate:
                 ON CONFLICT DO NOTHING;
                 """,
                 {
-                    "Major": major,
-                    "Year": year,
-                    "Classes": classes
+                    "major": major,
+                    "year": year,
+                    "classes": classes
                 }
             )
-        return False, "Year and Major cannot be null"
+
+            return True, None  # Successfully inserted
+        except Exception as e:
+            # Catch any unexpected errors
+            print(f"Unexpected error: {e}")
+            return False, f"An unexpected error occurred: {str(e)}"
 
     #Read
     def get_by_year(self, year):

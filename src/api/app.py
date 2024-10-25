@@ -51,6 +51,7 @@ course_select = CourseSelect.student_course_selection(db_conn)
 semester_info = SemesterInfo.semester_info(db_conn)
 professor_info = All_professors.Professor(db_conn, FastAPICache)
 users = UserModel.User()
+major_template = MajorTemplate.MajorTemplate(db_conn, FastAPICache)
 
 def is_admin_user(session):
     if 'user' in session and (session['user']['admin'] or session['user']['super_admin']):
@@ -389,7 +390,6 @@ async def remove_professor(email:str):
 
 @app.post('/api/bulkMajorTemplateUpload')
 async def uploadTemplateJSON(
-        isPubliclyVisible: str = Form(...),
         file: UploadFile = File(...)):  
     if not file:
         return Response("No file received", 400)
@@ -407,7 +407,7 @@ async def uploadTemplateJSON(
         return Response(f"Invalid JSON data: {str(e)}", 400)
 
     # Call populate_from_json method
-    isSuccess, error = MajorTemplate.populate_from_JSON(json_data)
+    isSuccess, error = major_template.populate_from_JSON(json_data)
     if isSuccess:
         print("SUCCESS")
         return Response(status_code=200)

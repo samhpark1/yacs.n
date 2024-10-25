@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 
 
 class SessionPydantic(BaseModel):
@@ -45,6 +45,11 @@ class SubsemesterPydantic(BaseModel):
 
 class DefaultSemesterSetPydantic(BaseModel):
     default: str
+
+class TemplatePydantic(BaseModel):
+    year: int
+    major: str
+    classes: Dict[str, str]
 
 
     

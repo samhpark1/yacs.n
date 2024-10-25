@@ -9,7 +9,7 @@ class MajorTemplate(Base):
     __tablename__ = "major_template"
 
     major = Column(VARCHAR(length=4))
-    year = Column(INTEGER)
+    year = Column(INTEGER) #year of entry
     classes = Column(JSON, nullable=False)
     __table_args__ = (
         PrimaryKeyConstraint('major', 'year'),
