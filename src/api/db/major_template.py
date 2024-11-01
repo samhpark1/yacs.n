@@ -69,11 +69,11 @@ class MajorTemplate:
     def add_template(self, major, year, classes):
         if year is None or major is None or classes is None:
             return False, "Year, Major, and Classes cannot be null"
-    
-        # Try to execute the SQL query with enhanced error handling
+
+        
         try:
-            # Execute the insert statement
-            result = self.db_conn.execute(
+            # Execute the insert statement without expecting a return
+            self.db_conn.execute(
                 """
                 INSERT INTO major_template (
                     major,
@@ -83,13 +83,13 @@ class MajorTemplate:
                 VALUES (
                     %(major)s, %(year)s, %(classes)s
                 )
-                ON CONFLICT DO NOTHING;
+                RETURNING*;
                 """,
                 {
                     "major": major,
                     "year": year,
                     "classes": classes
-                }
+                }, False
             )
 
             return True, None  # Successfully inserted
@@ -98,18 +98,20 @@ class MajorTemplate:
             print(f"Unexpected error: {e}")
             return False, f"An unexpected error occurred: {str(e)}"
 
+
     #Read
     def get_by_year(self, year):
         if year is not None:
-            return self.db_conn.execute(
+            result = self.db_conn.execute(
                 """
                     SELECT *
-                    FROM major_templates
+                    FROM major_template
                     WHERE year = %s
                 """,
-                (year, ),
-                True
+                (year, )
             )
+            print(result)
+            return result
         return False, "Year cannot be null"
 
     def get_by_major(self, major):
@@ -117,7 +119,7 @@ class MajorTemplate:
             return self.db_conn.execute(
                 """
                     SELECT *
-                    FROM major_templates
+                    FROM major_template
                     WHERE major = %s
                 """,
                 (major,),
@@ -130,7 +132,7 @@ class MajorTemplate:
             return self.db_conn.execute(
                 """
                     SELECT *
-                    FROM major_templates
+                    FROM major_template
                     WHERE major = %(major)s AND year = %(year)s
                 """,
                 (major, year,),
@@ -144,7 +146,7 @@ class MajorTemplate:
             return self.db_conn.execute(
                 """
                     DELETE *
-                    FROM major_templates
+                    FROM major_template
                     WHERE year = %s
                 """,
                 (year,),
@@ -157,7 +159,7 @@ class MajorTemplate:
             return self.db_conn.execute(
                 """
                     DELETE *
-                    FROM major_templates
+                    FROM major_template
                     WHERE year = %s
                 """,
                 (major,),
@@ -170,10 +172,10 @@ class MajorTemplate:
             return self.db_conn.execute(
                 """
                     DELETE *
-                    FROM major_templates
+                    FROM major_template
                     WHERE major = %(major)s AND year = %(year)s
                 """,
-                (major, year,),
+                {"major": str(major), "year": int(year)},
                 True
             )
         return False, "Major and Year cannot be null"

@@ -415,3 +415,30 @@ async def uploadTemplateJSON(
         print("NOT WORKING")
         print(error)
         return Response(error.__str__(), status_code=500)
+
+@app.post("/api/majorTemplateUpload")
+async def uploadTemplate(template: TemplatePydantic):
+    isSuccess, error = major_template.add_template(template.major, template.year, json.dumps(template.classes))
+
+    if isSuccess:
+        return Response(status_code = 200)
+    return Response(error.__str__(), status_code=500)
+
+
+@app.get("/api/getTemplateByYear/{year}")
+async def getTemplateByYear(year):
+    template, error = major_template.get_by_year(year)
+
+    return template if not error else Response(error.__str__(), status_code=500)
+
+@app.get("/api/getTemplateByMajor/{major}")
+async def getTemplateByYear(major):
+    template, error = major_template.get_by_major(major)
+
+    return template if not error else Response(error.__str__(), status_code=500)
+
+@app.get("/api/getTemplateByMajorYear/{major}/{year}")
+async def getTemplateByYear(major, year):
+    template, error = major_template.get_by_major_year(major, year)
+
+    return template if not error else Response(error.__str__(), status_code=500)
