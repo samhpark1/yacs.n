@@ -100,6 +100,20 @@ class MajorTemplate:
 
 
     #Read
+    def get_all(self):
+        try:
+            result = self.db_conn.execute(
+                """
+                    SELECT * FROM major_template
+                """,
+                ()
+            )
+
+            return result
+        except Exception as e:
+            return False, e
+
+
     def get_by_year(self, year):
         if year is not None:
             result = self.db_conn.execute(
@@ -135,47 +149,62 @@ class MajorTemplate:
                     FROM major_template
                     WHERE major = %(major)s AND year = %(year)s
                 """,
-                (major, year,),
+                {
+                    "major": major,
+                    "year": year,
+                },
                 True
             )
         return False, "Major and Year cannot be null"
 
+
+
     #Delete
     def remove_by_year(self, year):
         if year is not None:
-            return self.db_conn.execute(
+            return True, self.db_conn.execute(
                 """
-                    DELETE *
-                    FROM major_template
+                    DELETE FROM major_template
                     WHERE year = %s
                 """,
                 (year,),
-                True
+                False
             )
         return False, "Year cannot be null"
 
     def remove_by_major(self, major):
         if major is not None:
-            return self.db_conn.execute(
+            return True, self.db_conn.execute(
                 """
-                    DELETE *
-                    FROM major_template
-                    WHERE year = %s
+                    DELETE FROM major_template
+                    WHERE major = %s
                 """,
                 (major,),
-                True
+                False
             )
         return False, "Major cannot be null"
 
     def remove_by_major_year(self, major, year):
         if major is not None and year is not None:
-            return self.db_conn.execute(
+            return True, self.db_conn.execute(
                 """
-                    DELETE *
-                    FROM major_template
+                    DELETE FROM major_template
                     WHERE major = %(major)s AND year = %(year)s
                 """,
                 {"major": str(major), "year": int(year)},
-                True
+                False
             )
         return False, "Major and Year cannot be null"
+
+    def remove_all(self):
+        try:
+            return True, self.db_conn.execute(
+                """
+                    DELETE FROM major_template
+                """,
+                {},
+                False
+            )
+        except Exception as e:
+            return False, e
+

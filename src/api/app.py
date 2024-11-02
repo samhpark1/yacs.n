@@ -424,6 +424,12 @@ async def uploadTemplate(template: TemplatePydantic):
         return Response(status_code = 200)
     return Response(error.__str__(), status_code=500)
 
+@app.get("/api/getAllTemplates")
+async def getAllTemplates():
+    template, error = major_template.get_all()
+
+    return template if not error else Response(error.__str__(), status_code=500)
+
 
 @app.get("/api/getTemplateByYear/{year}")
 async def getTemplateByYear(year):
@@ -442,3 +448,35 @@ async def getTemplateByYear(major, year):
     template, error = major_template.get_by_major_year(major, year)
 
     return template if not error else Response(error.__str__(), status_code=500)
+
+@app.delete("/api/removeTemplateByMajor/{major}")
+async def removeTemplateByMajor(major):
+    isSuccess, error = major_template.remove_by_major(major)
+
+    if isSuccess:
+        return Response(status_code = 200)
+    return Response(error.__str__(), status_code=500)
+
+@app.delete("/api/removeTemplateByYear/{year}")
+async def removeTemplateByYear(year):
+    isSuccess, error = major_template.remove_by_year(year)
+
+    if isSuccess:
+        return Response(status_code = 200)
+    return Response(error.__str__(), status_code = 500)
+
+@app.delete("/api/removeTemplateByMajorYear/{major}/{year}")
+async def removeTemplateByMajorYear(major, year):
+    isSuccess, error = major_template.remove_by_major_year(major, year)
+
+    if isSuccess:
+        return Response(status_code = 200)
+    return Response(error.__str__(), status_code = 500)
+
+@app.delete("/api/removeAllTemplates")
+async def removeAllTemplates():
+    isSuccess, error = major_template.remove_all()
+
+    if isSuccess:
+        return Response(status_code = 200)
+    return Response(error.__str__(), status_code = 500)
