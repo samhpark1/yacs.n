@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 
 class SessionPydantic(BaseModel):
@@ -46,9 +46,21 @@ class SubsemesterPydantic(BaseModel):
 class DefaultSemesterSetPydantic(BaseModel):
     default: str
 
+class PickMultiple(BaseModel):
+    pick: int
+    classes: List[str]
+    
 class TemplatePydantic(BaseModel):
     year: int
     major: str
+    school: str
+    credits: int
+    focus_track: bool
+    link: str
+    notes: List[str]
+    required: List[str]
+    pick_multiple: Dict[str, PickMultiple]
+
     classes: Dict[str, str]
 
 
