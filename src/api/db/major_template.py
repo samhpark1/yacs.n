@@ -1,6 +1,7 @@
 import json
 from psycopg2.extras import RealDictCursor
 import asyncio
+import traceback
 
 if __name__ == "__main__":
     import connection
@@ -27,9 +28,9 @@ class MajorTemplate:
     #Create
     def populate_from_JSON(self, json_data):
         conn = self.db_conn.get_connection()
-        
-        with conn.cursor(cursor_factory=RealDictCursor) as transaction:
-            try:
+
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as transaction:
                 for entry in json_data:
                     try:
                         transaction.execute(
@@ -37,38 +38,52 @@ class MajorTemplate:
                             INSERT INTO major_template (
                                 major,
                                 year,
-                                classes
+                                school,
+                                credits,
+                                focus_track,
+                                link,
+                                notes,
+                                required,
+                                pick_multiple
                             )
                             VALUES (
-                                %(major)s, %(year)s, %(classes)s
+                                %(major)s, %(year)s, %(school)s, %(credits)s,
+                                %(focus_track)s, %(link)s, %(notes)s, %(required)s,
+                                %(pick_multiple)s
                             )
                             ON CONFLICT DO NOTHING;
                             """,
                             {
                                 "major": entry['major'],
                                 "year": entry['year'],
-                                "classes": json.dumps(entry['classes'])
+                                "school": entry['school'],
+                                "credits": entry['credits'],
+                                "focus_track": entry.get('focus-track', False),
+                                "notes": json.dumps(entry['notes']) if not isinstance(entry['notes'], str) else entry['notes'],
+                                "link": entry.get('link', None),
+                                "required": json.dumps(entry['required']) if not isinstance(entry['required'], str) else entry['required'],
+                                "pick_multiple": json.dumps(entry['pick-multiple']) if not isinstance(entry['pick-multiple'], str) else entry['pick-multiple']
                             }
                         )
                     except Exception as e:
-                        print("THIS IS THE EXCEPTION:", e)
-                        conn.rollback()
-                        return (False, e)
-            except ValueError as ve:
-                return (False, f"Invalid JSON data: {str(ve)}")
+                        print("THIS IS THE EXCEPTION:", traceback.format_exc())
+                        raise e  # Stop the entire process for debugging purposes
 
             conn.commit()
-
             self.clear_cache()
-
             return (True, "Added Successfully")
+        except Exception as e:
+            conn.rollback()
+            print("ROLLBACK TRIGGERED. Error:", traceback.format_exc())
+            return (False, str(e))
 
 
 
 
-    def add_template(self, major, year, classes):
-        if year is None or major is None or classes is None:
-            return False, "Year, Major, and Classes cannot be null"
+    def add_template(self, major, year, school, credits, focus_track,
+                    link, notes, required, pick_multiple):
+        if year is None or major is None:
+            return False, "Year and Major cannot be null"
 
         
         try:
@@ -78,17 +93,31 @@ class MajorTemplate:
                 INSERT INTO major_template (
                     major,
                     year,
-                    classes
+                    school,
+                    credits,
+                    focus_track,
+                    link,
+                    notes,
+                    required,
+                    pick_multiple
                 )
                 VALUES (
-                    %(major)s, %(year)s, %(classes)s
+                    %(major)s, %(year)s, %(school)s, %(credits)s,
+                    %(focus_track)s, %(link)s, %(notes)s, %(required)s,
+                    %(pick_multiple)s
                 )
                 RETURNING*;
                 """,
                 {
                     "major": major,
                     "year": year,
-                    "classes": classes
+                    "school": school,
+                    "credits": credits,
+                    "focus_track": focus_track,
+                    "link": link,
+                    "notes": notes,
+                    "required": required,
+                    "pick_multiple": pick_multiple
                 }, False
             )
 

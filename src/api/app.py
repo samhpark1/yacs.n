@@ -418,10 +418,28 @@ async def uploadTemplateJSON(
 
 @app.post("/api/majorTemplateUpload")
 async def uploadTemplate(template: TemplatePydantic):
-    isSuccess, error = major_template.add_template(template.major, template.year, json.dumps(template.classes))
+    # Convert nested models to dict (or use .json() if you want JSON strings)
+    pick_multiple_dict = {key: value.dict() for key, value in template.pick_multiple.items()}
+    
+    # If you need to convert the `PickMultiple` back to JSON, you can do:
+    pick_multiple_json = json.dumps(pick_multiple_dict)
+
+    # Add template to the database using your `add_template` method
+    isSuccess, error = major_template.add_template(
+        template.major,
+        template.year,
+        template.school,
+        template.credits,
+        template.focus_track,
+        template.link,
+        json.dumps(template.notes),  # Serialize notes
+        json.dumps(template.required),  # Serialize required
+        pick_multiple_json  # Serialize pick-multiple
+    )
 
     if isSuccess:
-        return Response(status_code = 200)
+        return Response(status_code=200)
+    
     return Response(error.__str__(), status_code=500)
 
 @app.get("/api/getAllTemplates")

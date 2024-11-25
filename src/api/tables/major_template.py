@@ -1,6 +1,6 @@
 from sqlalchemy import Column, PrimaryKeyConstraint
 
-from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR, BOOLEAN, JSON
+from sqlalchemy.dialects.postgresql import INTEGER, TEXT, BOOLEAN, JSON
 
 from .database import Base
 
@@ -8,12 +8,12 @@ from .database import Base
 class MajorTemplate(Base):
     __tablename__ = "major_template"
 
-    major = Column(VARCHAR(length=30))
+    major = Column(TEXT)
     year = Column(INTEGER) #year of entry
-    school = Column(VARCHAR(length=20))
+    school = Column(TEXT)
     credits = Column(INTEGER)
     focus_track = Column(BOOLEAN)
-    link = Column(VARCHAR(length=100))
+    link = Column(TEXT)
     notes = Column(JSON)
     required = Column(JSON)
     pick_multiple = Column(JSON)

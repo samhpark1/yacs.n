@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
 
 
@@ -55,13 +55,13 @@ class TemplatePydantic(BaseModel):
     major: str
     school: str
     credits: int
-    focus_track: bool
+    focus_track: bool = Field(..., alias='focus-track')
     link: str
     notes: List[str]
     required: List[str]
-    pick_multiple: Dict[str, PickMultiple]
+    pick_multiple: Dict[str, PickMultiple] = Field(..., alias='pick-multiple')
 
-    classes: Dict[str, str]
-
+    class Config:
+        allow_population_by_field_name = True
 
     
