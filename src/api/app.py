@@ -457,18 +457,21 @@ async def getTemplateByYear(year):
 
 @app.get("/api/getTemplateByMajor/{major}")
 async def getTemplateByYear(major):
+    major = major.replace('-', ' ')
     template, error = major_template.get_by_major(major)
 
     return template if not error else Response(error.__str__(), status_code=500)
 
 @app.get("/api/getTemplateByMajorYear/{major}/{year}")
 async def getTemplateByYear(major, year):
+    major = major.replace('-', ' ')
     template, error = major_template.get_by_major_year(major, year)
 
     return template if not error else Response(error.__str__(), status_code=500)
 
 @app.delete("/api/removeTemplateByMajor/{major}")
 async def removeTemplateByMajor(major):
+    major = major.replace('-', ' ')
     isSuccess, error = major_template.remove_by_major(major)
 
     if isSuccess:
@@ -485,6 +488,7 @@ async def removeTemplateByYear(year):
 
 @app.delete("/api/removeTemplateByMajorYear/{major}/{year}")
 async def removeTemplateByMajorYear(major, year):
+    major = major.replace('-', ' ')
     isSuccess, error = major_template.remove_by_major_year(major, year)
 
     if isSuccess:
