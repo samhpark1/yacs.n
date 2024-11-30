@@ -409,11 +409,8 @@ async def uploadTemplateJSON(
     # Call populate_from_json method
     isSuccess, error = major_template.populate_from_JSON(json_data)
     if isSuccess:
-        print("SUCCESS")
-        return Response(status_code=200)
+        return Response(status_code=201)
     else:
-        print("NOT WORKING")
-        print(error)
         return Response(error.__str__(), status_code=500)
 
 @app.post("/api/majorTemplateUpload")
@@ -441,6 +438,37 @@ async def uploadTemplate(template: TemplatePydantic):
         return Response(status_code=200)
     
     return Response(error.__str__(), status_code=500)
+
+@app.put("/api/updateTemplate")
+async def uploadTemplate(template: TemplatePydantic):
+    # Remove existing tuple
+    _, error = major_template.remove_by_major_year(template.major, template.year)
+
+    if not error:
+        Response(error.__str__(), status_code=500)
+
+    pick_multiple_dict = {key: value.dict() for key, value in template.pick_multiple.items()}
+    
+    pick_multiple_json = json.dumps(pick_multiple_dict)
+
+    # Add updated tuple
+    isSuccess, error = major_template.add_template(
+        template.major,
+        template.year,
+        template.school,
+        template.credits,
+        template.focus_track,
+        template.link,
+        json.dumps(template.notes),
+        json.dumps(template.required),
+        pick_multiple_json
+    )
+
+    if isSuccess:
+        return Response(status_code=200)
+    
+    return Response(error.__str__(), status_code=500)
+
 
 @app.get("/api/getAllTemplates")
 async def getAllTemplates():
@@ -475,7 +503,7 @@ async def removeTemplateByMajor(major):
     isSuccess, error = major_template.remove_by_major(major)
 
     if isSuccess:
-        return Response(status_code = 200)
+        return Response("Successfully Removed", status_code = 200)
     return Response(error.__str__(), status_code=500)
 
 @app.delete("/api/removeTemplateByYear/{year}")
@@ -483,7 +511,7 @@ async def removeTemplateByYear(year):
     isSuccess, error = major_template.remove_by_year(year)
 
     if isSuccess:
-        return Response(status_code = 200)
+        return Response("Successfully Removed", status_code = 200)
     return Response(error.__str__(), status_code = 500)
 
 @app.delete("/api/removeTemplateByMajorYear/{major}/{year}")
@@ -492,7 +520,7 @@ async def removeTemplateByMajorYear(major, year):
     isSuccess, error = major_template.remove_by_major_year(major, year)
 
     if isSuccess:
-        return Response(status_code = 200)
+        return Response("Successfully Removed", status_code = 200)
     return Response(error.__str__(), status_code = 500)
 
 @app.delete("/api/removeAllTemplates")
@@ -500,5 +528,5 @@ async def removeAllTemplates():
     isSuccess, error = major_template.remove_all()
 
     if isSuccess:
-        return Response(status_code = 200)
+        return Response("Successfully Removed", status_code = 200)
     return Response(error.__str__(), status_code = 500)
